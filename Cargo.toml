@@ -2,6 +2,7 @@
 name = "meme-trend-agent"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs" # Tell Cargo to use the build script
 
 [lib]
 crate-type = ["cdylib"]
@@ -12,4 +13,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 reqwest = { version = "0.11", features = ["json"] }
 wasm-bindgen-futures = "0.4.34"
-dotenvy = "0.15" # Add this line
+
+# Add this new section for the build script's dependencies
+[build-dependencies]
+dotenvy = "0.15"
