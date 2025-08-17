@@ -35,13 +35,13 @@ cargo install wasm-pack
 First, download the source code from this repository to your local machine using Git.
 
 ```bash
-git clone [https://github.com/sinascorpion/meme-trend-agent.git](https://github.com/sinascorpion/meme-trend-agent.git)
+git clone https://github.com/sinascorpion/meme-trend-agent.git
 cd meme-trend-agent
 ```
 
 ### Step 2: Configure Your API Key
 
-The agent needs an Apify API key to work. You'll store this key in a local `.env` file, which is kept private and not uploaded to GitHub.
+The agent needs an [Apify](https://apify.com) API key to work. You'll store this key in a local `.env` file, which is kept private and not uploaded to GitHub.
 
 1.  **Create the `.env` file** in the root of the project directory.
 
