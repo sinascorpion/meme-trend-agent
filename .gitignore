@@ -1,3 +1,6 @@
-/target
+# Secret environment variables
+.env
+
+# Compiled files
 /pkg
 /target

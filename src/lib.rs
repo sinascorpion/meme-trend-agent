@@ -3,6 +3,9 @@ use wasm_bindgen::prelude::*;
 use serde::{Serialize, Deserialize};
 use serde_json;
 
+// Load environment variables from .env file
+use dotenvy::dotenv;
+
 #[derive(Serialize, Deserialize)]
 pub struct MemeTrendRequest {
     #[serde(rename = "numberOfMemes")]
@@ -29,8 +32,11 @@ pub struct Meme {
 
 #[wasm_bindgen]
 pub async fn analyze_meme_trends(input: String) -> String {
-    // IMPORTANT: Replace YOUR_API-KEY with your actual Apify API token before building.
-    let api_key = "YOUR_API-KEY";
+    // This line loads the .env file
+    dotenv().ok();
+    
+    // This macro reads the API_KEY from the environment at compile time
+    let api_key = env!("APIFY_API_KEY");
 
     let request: MemeTrendRequest = serde_json::from_str(&input).unwrap();
     let url = format!(
