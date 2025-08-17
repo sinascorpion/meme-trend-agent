@@ -72,6 +72,8 @@ This process will create a `pkg` directory. Your final, ready-to-upload file is 
 The agent communicates using a defined JSON schema for its inputs and outputs.
 
 ### Input Schema (JSON)
+Recommended min Validator: 1
+Recommended min Block: 5
 
 This is the structure of the request the agent expects.
 
@@ -137,3 +139,4 @@ This is the structure of the response the agent will provide.
   },
   "required": ["trendingMemes"]
 }
+
