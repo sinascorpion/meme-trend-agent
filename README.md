@@ -54,3 +54,44 @@ This is the structure of the request the agent expects.
   },
   "required": ["numberOfMemes"]
 }
+
+### Outpu Schema (JSON)
+```json
+{
+  "$schema": "[http://json-schema.org/draft-07/schema#](http://json-schema.org/draft-07/schema#)",
+  "title": "MemeTrendResponse",
+  "description": "A response containing a list of trending memes and investment suggestions.",
+  "type": "object",
+  "properties": {
+    "trendingMemes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "format": "uri"
+          },
+          "investmentAnalysis": {
+            "type": "string"
+          },
+          "investmentSuggestion": {
+            "type": "string",
+            "enum": ["High Potential", "Medium Potential", "Low Potential", "Not Recommended"]
+          }
+        },
+        "required": ["rank", "name", "description", "source", "investmentAnalysis", "investmentSuggestion"]
+      }
+    }
+  },
+  "required": ["trendingMemes"]
+}
