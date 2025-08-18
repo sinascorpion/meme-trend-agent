@@ -1,10 +1,12 @@
-# Meme Archetype Analysis AI Agent
+# Uomi.ai Meme Archetype Analysis Agent
 
-This repository contains the source code for a self-contained AI agent built to run on [uomi.ai](https://uomi.ai/).
+This repository contains the source code for a self-contained AI agent built specifically for the [uomi.ai](https://uomi.ai/) platform, following its official documentation. This agent **does not require any external API calls**.
 
-Instead of fetching live data, the agent analyzes a user-provided description of a meme. It then classifies the meme into a known archetype (e.g., "Reaction Image", "Viral Challenge") and provides a simulated investment potential based on the historical performance patterns of that archetype.
+The agent analyzes a user-provided description of a meme, classifies it into a known archetype (e.g., "Reaction Image", "Viral Challenge"), and provides a simulated investment potential based on the historical performance patterns of that archetype.
 
-The core logic is written in Rust and compiled to a single, self-contained WebAssembly (WASM) file.
+The core logic is written in Rust and compiled to a single, self-contained WebAssembly (WASM) file with the entry points required by the Uomi platform.
+
+---
 
 ## 🚀 Getting Started: A Step-by-Step Guide
 
@@ -16,7 +18,6 @@ You will need the following tools installed on your system:
 
 * **Git:** For downloading the repository.
 * **Rust & Cargo:** The programming language and its build tool.
-* **wasm-pack:** A tool for building Rust-generated WebAssembly.
 
 If you don't have them, you can install them with these commands:
 
@@ -27,9 +28,6 @@ sudo apt update && sudo apt install git curl build-essential -y
 # Install Rust
 curl --proto '=https' --tlsv1.2 -sSf [https://sh.rustup.rs](https://sh.rustup.rs) | sh
 source $HOME/.cargo/env
-
-# Install wasm-pack
-cargo install wasm-pack
 ```
 
 ### Step 1: Clone the Repository
@@ -37,19 +35,21 @@ cargo install wasm-pack
 Download the source code from this repository to your local machine.
 
 ```bash
-git clone https://github.com/sinascorpion/meme-trend-agent.git
+git clone [https://github.com/sinascorpion/meme-trend-agent.git](https://github.com/sinascorpion/meme-trend-agent.git)
 cd meme-trend-agent
 ```
 
 ### Step 2: Build the Project
 
-Now you can compile the Rust code into a WebAssembly file. All the necessary data and logic are included in the source code.
+Now you can compile the Rust code into a WebAssembly file. This is a simpler build process that doesn't require `wasm-pack`.
 
 ```bash
-wasm-pack build --target web
+cargo build --target wasm32-unknown-unknown --release
 ```
 
-This command creates a `pkg` directory. Your final, ready-to-upload file is located at: **`pkg/meme_trend_agent_bg.wasm`**.
+This command creates a `target` directory. Your final, ready-to-upload file is located at: **`target/wasm32-unknown-unknown/release/meme_trend_agent.wasm`**.
+
+---
 
 ## 📝 Schemas
 
