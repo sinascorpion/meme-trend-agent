@@ -1,4 +1,4 @@
-# Offline Meme Archetype Analysis AI Agent
+# Meme Archetype Analysis AI Agent
 
 This repository contains the source code for a self-contained AI agent built to run on [uomi.ai](https://uomi.ai/). This agent **does not require any external API calls**.
 
