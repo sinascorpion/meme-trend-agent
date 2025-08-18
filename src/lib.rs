@@ -1,4 +1,8 @@
-use wasm_bindgen::prelude::*;
+use std::mem;
+use std::ffi::{CString, CStr};
+use std::os::raw::{c_char, c_void};
+
+// The serde libraries are still needed for JSON processing
 use serde::{Serialize, Deserialize};
 use serde_json;
 
@@ -70,11 +74,10 @@ fn get_archetypes() -> Vec<MemeArchetype> {
     ]
 }
 
-// --- The Main Agent Function ---
-
-#[wasm_bindgen]
-pub fn analyze_meme_trends(input: String) -> String {
-    let request: MemeAnalysisRequest = serde_json::from_str(&input).unwrap_or_else(|_| MemeAnalysisRequest {
+// --- Core Logic Function ---
+// This function takes a standard Rust string and returns a standard Rust string.
+fn run_analysis(input_json: &str) -> String {
+    let request: MemeAnalysisRequest = serde_json::from_str(input_json).unwrap_or_else(|_| MemeAnalysisRequest {
         meme_description: String::new(),
     });
 
@@ -111,4 +114,55 @@ pub fn analyze_meme_trends(input: String) -> String {
     };
 
     serde_json::to_string(&response).unwrap()
+}
+
+// --- Memory Management and Entry Point for the Uomi Platform ---
+
+static mut INPUT_LEN: usize = 0;
+static mut INPUT_PTR: *mut u8 = 0 as *mut u8;
+static mut OUTPUT_PTR: *const c_char = 0 as *const c_char;
+
+/// This is the function the Uomi platform will call to run your agent.
+#[no_mangle]
+pub extern "C" fn run() {
+    let input_json = unsafe {
+        let slice = std::slice::from_raw_parts(INPUT_PTR, INPUT_LEN);
+        std::str::from_utf8(slice).unwrap_or("")
+    };
+    
+    let result_string = run_analysis(input_json);
+    let c_string = CString::new(result_string).unwrap();
+
+    unsafe {
+        OUTPUT_PTR = c_string.as_ptr();
+    }
+    
+    mem::forget(c_string);
+}
+
+/// The platform calls this to get the result after `run()` has finished.
+#[no_mangle]
+pub extern "C" fn get_output() -> *const c_char {
+    unsafe { OUTPUT_PTR }
+}
+
+/// The platform calls this to prepare a memory buffer for the input.
+#[no_mangle]
+pub extern "C" fn alloc(size: usize) -> *mut c_void {
+    let mut buf = Vec::with_capacity(size);
+    let ptr = buf.as_mut_ptr();
+    mem::forget(buf);
+    unsafe {
+        INPUT_PTR = ptr;
+        INPUT_LEN = size;
+    }
+    ptr as *mut c_void
+}
+
+/// The platform can call this to free memory.
+#[no_mangle]
+pub extern "C" fn dealloc(ptr: *mut c_void, size: usize) {
+    unsafe {
+        let _ = Vec::from_raw_parts(ptr, 0, size);
+    }
 }
