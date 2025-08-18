@@ -1,6 +1,6 @@
 # Meme Archetype Analysis AI Agent
 
-This repository contains the source code for a self-contained AI agent built to run on [uomi.ai](https://uomi.ai/). This agent **does not require any external API calls**.
+This repository contains the source code for a self-contained AI agent built to run on [uomi.ai](https://uomi.ai/).
 
 Instead of fetching live data, the agent analyzes a user-provided description of a meme. It then classifies the meme into a known archetype (e.g., "Reaction Image", "Viral Challenge") and provides a simulated investment potential based on the historical performance patterns of that archetype.
 
