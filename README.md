@@ -37,7 +37,7 @@ cargo install wasm-pack
 Download the source code from this repository to your local machine.
 
 ```bash
-git clone [https://github.com/sinascorpion/meme-trend-agent.git](https://github.com/sinascorpion/meme-trend-agent.git)
+git clone https://github.com/sinascorpion/meme-trend-agent.git
 cd meme-trend-agent
 ```
 
