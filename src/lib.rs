@@ -1,73 +1,114 @@
-// src/lib.rs
 use wasm_bindgen::prelude::*;
 use serde::{Serialize, Deserialize};
 use serde_json;
 
+// --- Input and Output Structures ---
+
 #[derive(Serialize, Deserialize)]
-pub struct MemeTrendRequest {
-    #[serde(rename = "numberOfMemes")]
-    pub number_of_memes: i32,
+pub struct MemeAnalysisRequest {
+    #[serde(rename = "memeDescription")]
+    pub meme_description: String,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct MemeTrendResponse {
-    #[serde(rename = "trendingMemes")]
-    pub trending_memes: Vec<Meme>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct Meme {
-    pub rank: i32,
-    pub name: String,
-    pub description: String,
-    pub source: String,
-    #[serde(rename = "investmentAnalysis")]
-    pub investment_analysis: String,
+pub struct MemeAnalysisResponse {
+    pub archetype: String,
+    pub analysis: String,
     #[serde(rename = "investmentSuggestion")]
     pub investment_suggestion: String,
 }
 
-#[wasm_bindgen]
-pub async fn analyze_meme_trends(input: String) -> String {
-    // The build script makes this available at compile time.
-    let api_key = env!("APIFY_API_KEY");
+// --- Internal Data Structures ---
 
-    let request: MemeTrendRequest = serde_json::from_str(&input).unwrap();
-    let url = format!(
-        "https://api.apify.com/v2/acts/muhammetakkurtt~dexscan-meme-explorer-scraper/run-sync-get-dataset-items?token={}",
-        api_key
-    );
-    let client = reqwest::Client::new();
-    let api_input = serde_json::json!({
-        "category": "newCreations",
-        "limit": request.number_of_memes,
+struct MemeArchetype {
+    name: &'static str,
+    keywords: Vec<&'static str>,
+    analysis: &'static str,
+    suggestion: &'static str,
+}
+
+// --- The Agent's Internal Knowledge Base ---
+
+fn get_archetypes() -> Vec<MemeArchetype> {
+    vec![
+        MemeArchetype {
+            name: "Reaction Image/GIF",
+            keywords: vec!["face", "reaction", "surprised", "happy", "sad", "angry", "confused", "thinking", "nodding", "crying"],
+            analysis: "Reaction-based memes are highly versatile and have long-term utility in online conversations. Their value is stable but rarely explosive.",
+            suggestion: "Low Potential",
+        },
+        MemeArchetype {
+            name: "Viral Challenge / Dance",
+            keywords: vec!["dance", "challenge", "song", "music", "tiktok", "trend", "movement"],
+            analysis: "Viral challenges have a very high but short-lived peak. They can generate massive, rapid interest but fade just as quickly. High risk, high reward.",
+            suggestion: "High Potential",
+        },
+        MemeArchetype {
+            name: "Wholesome / Positive Meme",
+            keywords: vec!["wholesome", "cute", "happy", "positive", "dog", "cat", "friendship", "love", "kindness"],
+            analysis: "Wholesome content has a dedicated audience and consistent engagement. It fosters a positive community but rarely achieves explosive viral status.",
+            suggestion: "Medium Potential",
+        },
+        MemeArchetype {
+            name: "Cursed Image / Absurdist Humor",
+            keywords: vec!["cursed", "weird", "strange", "bizarre", "surreal", "odd", "unsettling", "deep fried"],
+            analysis: "Absurdist and 'cursed' humor appeals to niche, highly-online communities. These can become cult classics with a dedicated following, but have limited mainstream appeal.",
+            suggestion: "Speculative",
+        },
+        MemeArchetype {
+            name: "Exploitable Format",
+            keywords: vec!["format", "template", "comic", "drake", "distracted boyfriend", "spongebob", "panel", "label"],
+            analysis: "Exploitable formats are the backbone of meme creation. A successful new format can dominate the cultural landscape for weeks or months, offering significant opportunities.",
+            suggestion: "High Potential",
+        },
+        MemeArchetype {
+            name: "Niche Hobby / Fandom Meme",
+            keywords: vec!["gaming", "anime", "movie", "d&d", "warhammer", "coding", "sports", "star wars"],
+            analysis: "These memes are highly relevant within their specific communities but have almost no value outside of them. Their potential is directly tied to the size and engagement of their niche.",
+            suggestion: "Speculative",
+        },
+    ]
+}
+
+// --- The Main Agent Function ---
+
+#[wasm_bindgen]
+pub fn analyze_meme_trends(input: String) -> String {
+    let request: MemeAnalysisRequest = serde_json::from_str(&input).unwrap_or_else(|_| MemeAnalysisRequest {
+        meme_description: String::new(),
     });
-    let res = client.post(&url).json(&api_input).send().await.unwrap().text().await.unwrap();
-    let api_response: serde_json::Value = serde_json::from_str(&res).unwrap();
-    let memes_data = api_response.as_array().unwrap();
-    let mut trending_memes = Vec::new();
-    for (i, meme_data) in memes_data.iter().enumerate() {
-        let name = meme_data["name"].as_str().unwrap_or("N/A").to_string();
-        let description = meme_data["description"].as_str().unwrap_or("No description available.").to_string();
-        let source = meme_data["url"].as_str().unwrap_or("").to_string();
-        let volume = meme_data["volume"].as_f64().unwrap_or(0.0);
-        let liquidity = meme_data["liquidity"].as_f64().unwrap_or(0.0);
-        let (investment_analysis, investment_suggestion) = if volume > 100000.0 && liquidity > 50000.0 {
-            ("This meme coin has high trading volume and good liquidity, indicating strong market interest.".to_string(), "High Potential".to_string())
-        } else if volume > 50000.0 && liquidity > 20000.0 {
-            ("This meme coin has moderate trading volume and liquidity. It shows some promise but carries risk.".to_string(), "Medium Potential".to_string())
-        } else {
-            ("This meme coin has low trading volume and liquidity, making it a high-risk investment.".to_string(), "Low Potential".to_string())
-        };
-        trending_memes.push(Meme {
-            rank: (i + 1) as i32,
-            name,
-            description,
-            source,
-            investment_analysis,
-            investment_suggestion,
-        });
+
+    let archetypes = get_archetypes();
+    let mut best_match: Option<&MemeArchetype> = None;
+    let mut max_score = 0;
+
+    let description_lower = request.meme_description.to_lowercase();
+
+    for archetype in &archetypes {
+        let mut current_score = 0;
+        for keyword in &archetype.keywords {
+            if description_lower.contains(keyword) {
+                current_score += 1;
+            }
+        }
+        if current_score > max_score {
+            max_score = current_score;
+            best_match = Some(archetype);
+        }
     }
-    let response = MemeTrendResponse { trending_memes };
+
+    let response = match best_match {
+        Some(archetype) if max_score > 0 => MemeAnalysisResponse {
+            archetype: archetype.name.to_string(),
+            analysis: archetype.analysis.to_string(),
+            investment_suggestion: archetype.suggestion.to_string(),
+        },
+        _ => MemeAnalysisResponse {
+            archetype: "Unclassified".to_string(),
+            analysis: "The provided description did not match a known meme archetype. This type of meme is highly unpredictable.".to_string(),
+            investment_suggestion: "Speculative".to_string(),
+        },
+    };
+
     serde_json::to_string(&response).unwrap()
 }
