@@ -1,6 +1,6 @@
 # Uomi.ai Meme Calculator Agent
 
-This repository contains the source code for a self-contained AI agent built for the [uomi.ai](https://uomi.ai/) platform, based on their official documentation. This agent **does not require any external API calls**.
+This repository contains the source code for a self-contained AI agent built for the [uomi.ai](https://uomi.ai/) platform.
 
 The agent performs a simple calculation: it takes two numbers (`a` and `b`) and an optional text string, then returns a message and the sum of the two numbers.
 
