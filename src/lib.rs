@@ -5,7 +5,7 @@ extern crate alloc;
 use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
-use core::cell::RefCell; // Import RefCell for safe interior mutability
+use core::cell::RefCell;
 use serde::{Deserialize, Serialize};
 
 #[global_allocator]
@@ -111,8 +111,4 @@ pub extern "C" fn get_output_len() -> usize {
     OUTPUT_BUFFER.borrow().len()
 }
 
-/// Required panic handler for `no_std` environments.
-#[panic_handler]
-fn handle_panic(_: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
+// The custom panic handler was removed to fix the error.
