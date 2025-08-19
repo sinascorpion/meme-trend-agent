@@ -4,8 +4,6 @@ This repository contains the source code for a self-contained AI agent built for
 
 The agent performs a simple calculation: it takes two numbers (`a` and `b`) and an optional text string, then returns a message and the sum of the two numbers.
 
-The core logic is written in Rust and compiled to a single, `no_std` compliant WebAssembly (WASM) file.
-
 ---
 
 ## 🚀 Getting Started: A Step-by-Step Guide
