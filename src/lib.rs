@@ -5,6 +5,7 @@ extern crate alloc;
 use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
+use core::cell::RefCell; // Import RefCell for safe interior mutability
 use serde::{Deserialize, Serialize};
 
 #[global_allocator]
@@ -46,8 +47,8 @@ fn get_archetypes() -> Vec<MemeArchetype> {
     ]
 }
 
-// --- Global variables to hold output ---
-static mut OUTPUT_BUFFER: Vec<u8> = Vec::new();
+// Use RefCell for safe interior mutability of the global buffer
+static OUTPUT_BUFFER: RefCell<Vec<u8>> = RefCell::new(Vec::new());
 
 /// This is the main entry point for the Uomi agent.
 #[no_mangle]
@@ -91,21 +92,27 @@ pub extern "C" fn run(ptr: *const u8, len: usize) {
     };
 
     let result_string = serde_json::to_string(&response).unwrap();
-    unsafe {
-        OUTPUT_BUFFER = result_string.into_bytes();
-    }
+
+    // Safely borrow and update the buffer
+    *OUTPUT_BUFFER.borrow_mut() = result_string.into_bytes();
 }
 
 /// Returns a pointer to the output buffer.
 #[no_mangle]
 pub extern "C" fn get_output_ptr() -> *const u8 {
-    unsafe { OUTPUT_BUFFER.as_ptr() }
+    // Safely borrow the buffer to get the pointer
+    OUTPUT_BUFFER.borrow().as_ptr()
 }
 
 /// Returns the length of the output buffer.
 #[no_mangle]
 pub extern "C" fn get_output_len() -> usize {
-    unsafe { OUTPUT_BUFFER.len() }
+    // Safely borrow the buffer to get the length
+    OUTPUT_BUFFER.borrow().len()
 }
 
-// NOTE: The custom panic handler has been removed to resolve the conflict.
+/// Required panic handler for `no_std` environments.
+#[panic_handler]
+fn handle_panic(_: &core::panic::PanicInfo) -> ! {
+    loop {}
+}
