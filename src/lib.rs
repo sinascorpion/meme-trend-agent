@@ -66,9 +66,3 @@ pub extern "C" fn get_output_ptr() -> *const u8 {
 pub extern "C" fn get_output_len() -> usize {
     OUTPUT_BUFFER.lock().len()
 }
-
-/// Required panic handler for `no_std` environments.
-#[panic_handler]
-fn handle_panic(_: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
