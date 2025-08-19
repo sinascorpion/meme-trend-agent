@@ -26,7 +26,7 @@ If you don't have them, you can install them with these commands:
 sudo apt update && sudo apt install git curl build-essential -y
 
 # Install Rust
-curl --proto '=https' --tlsv1.2 -sSf [https://sh.rustup.rs](https://sh.rustup.rs) | sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
 ```
 
