@@ -1,16 +1,16 @@
-# Uomi.ai Meme Archetype Analysis Agent
+# Uomi.ai Meme Calculator Agent
 
-This repository contains the source code for a self-contained AI agent built specifically for the [uomi.ai](https://uomi.ai/) platform.
+This repository contains the source code for a self-contained AI agent built for the [uomi.ai](https://uomi.ai/) platform, based on their official documentation. This agent **does not require any external API calls**.
 
-The agent analyzes a user-provided description of a meme, classifies it into a known archetype (e.g., "Reaction Image", "Viral Challenge"), and provides a simulated investment potential based on the historical performance patterns of that archetype.
+The agent performs a simple calculation: it takes two numbers (`a` and `b`) and an optional text string, then returns a message and the sum of the two numbers.
 
-The core logic is written in Rust and compiled to a single, self-contained WebAssembly (WASM) file with the entry points required by the Uomi platform.
+The core logic is written in Rust and compiled to a single, `no_std` compliant WebAssembly (WASM) file.
 
 ---
 
 ## 🚀 Getting Started: A Step-by-Step Guide
 
-This guide will walk you through setting up the project and building the final `.wasm` file.
+This guide will walk you through building the final `.wasm` file from scratch.
 
 ### Prerequisites
 
@@ -35,13 +35,13 @@ source $HOME/.cargo/env
 Download the source code from this repository to your local machine.
 
 ```bash
-git clone https://github.com/sinascorpion/meme-trend-agent.git
+git clone [https://github.com/sinascorpion/meme-trend-agent.git](https://github.com/sinascorpion/meme-trend-agent.git)
 cd meme-trend-agent
 ```
 
 ### Step 2: Build the Project
 
-Now you can compile the Rust code into a WebAssembly file. This is a simpler build process that doesn't require `wasm-pack`.
+Compile the Rust code into a WebAssembly file.
 
 ```bash
 cargo build --target wasm32-unknown-unknown --release
@@ -57,45 +57,41 @@ The agent uses the following JSON schemas for its inputs and outputs.
 
 ### Input Schema (JSON)
 
-The agent expects a simple text description of the meme to be analyzed.
-
 ```json
 {
-  "$schema": "[http://json-schema.org/draft-07/schema#](http://json-schema.org/draft-07/schema#)",
-  "title": "MemeAnalysisRequest",
-  "description": "A request to analyze a meme based on its description.",
   "type": "object",
   "properties": {
-    "memeDescription": {
-      "description": "A text description of the meme (e.g., 'a cat looking surprised', 'someone dancing to a popular song').",
-      "type": "string"
+    "a": {
+      "type": "integer",
+      "description": "First number for calculation"
+    },
+    "b": {
+      "type": "integer",
+      "description": "Second number for calculation"
+    },
+    "text": {
+      "type": "string",
+      "description": "Optional text message to pass to the Agent"
     }
   },
-  "required": ["memeDescription"]
+  "required": ["a", "b"]
 }
 ```
 
 ### Output Schema (JSON)
 
-The agent returns the identified archetype and a corresponding analysis.
-
 ```json
 {
-  "$schema": "[http://json-schema.org/draft-07/schema#](http://json-schema.org/draft-07/schema#)",
-  "title": "MemeAnalysisResponse",
-  "description": "A response containing the analysis of the described meme.",
   "type": "object",
   "properties": {
-    "archetype": {
-      "type": "string"
-    },
-    "analysis": {
-      "type": "string"
-    },
-    "investmentSuggestion": {
+    "message": {
       "type": "string",
-      "enum": ["High Potential", "Medium Potential", "Low Potential", "Speculative"]
+      "description": "The output message from the Agent"
+    },
+    "calculation_result": {
+      "type": "integer",
+      "description": "The result of adding a and b"
     }
   },
-  "required": ["archetype", "analysis", "investmentSuggestion"]
+  "required": ["message", "calculation_result"]
 }
